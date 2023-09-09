@@ -14,6 +14,9 @@ class ProductAdmin(admin.ModelAdmin):
     def collection_title(self, product):
         return product.collection.title
 
+    search_fields = ['title__istartswith']
+    list_filter = ['collection']
+
 
 @admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
@@ -28,4 +31,4 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'placed_at', 'payment_status', 'customer']
     list_editable = ['payment_status']
     list_per_page = 10
-    list_select_related = ['customer']    
+    list_select_related = ['customer']
