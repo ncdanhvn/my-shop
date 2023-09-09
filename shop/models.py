@@ -12,6 +12,7 @@ class Product(models.Model):
     inventory = models.IntegerField()
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
+    slug = models.CharField(max_length=255)
 
 
 class Customer(models.Model):
