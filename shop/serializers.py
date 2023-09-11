@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Collection, Cart, CartItem
+from .models import Product, Collection, Cart, CartItem, Customer
 
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -88,3 +88,11 @@ class UpdateCartItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
         fields = ['quantity']
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ['id', 'phone', 'birth_date', 'membership', 'user_id']
+
+    user_id = serializers.IntegerField()
