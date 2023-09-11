@@ -1,6 +1,8 @@
-from uuid import uuid4
+from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.contrib import admin
+from uuid import uuid4
 
 
 class Collection(models.Model):
@@ -17,11 +19,11 @@ class Product(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     price = models.DecimalField(
-        max_digits=6, 
+        max_digits=6,
         decimal_places=2,
         validators=[MinValueValidator(1)])
     inventory = models.IntegerField(
-        validators=[MinValueValidator(0)])    
+        validators=[MinValueValidator(0)])
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
     slug = models.CharField(max_length=255)
@@ -44,13 +46,23 @@ class Customer(models.Model):
         (MEMBERSHIP_GOLD, 'Gold'),
     ]
 
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
-    email = models.EmailField(unique=True)
     phone = models.CharField(max_length=255)
     birth_date = models.DateField(null=True)
     membership = models.CharField(
         max_length=1, choices=MEMBERSHIP_CHOICES, default=MEMBERSHIP_BRONZE)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.user.first_name} {self.user.last_name}'
+
+    @admin.display(ordering='user__first_name')
+    def first_name(self):
+        return self.user.first_name
+
+    @admin.display(ordering='user__last_name')
+    def last_name(self):
+        return self.user.last_name
 
 
 class Order(models.Model):
@@ -89,9 +101,11 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    cart = models.ForeignKey(
+        Cart, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
+    quantity = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)])
 
     class Meta:
         unique_together = [['cart', 'product']]
