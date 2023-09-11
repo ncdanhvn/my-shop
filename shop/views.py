@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
 from .models import Product, Collection, OrderItem, Cart, CartItem, Customer, Order
-from .serializers import CollectionSerializer, ProductSerializer, CartSerializer, CartItemSerializer, AddCartItemSerializer, UpdateCartItemSerializer, CustomerSerializer, OrderSerializer
+from .serializers import CollectionSerializer, ProductSerializer, CartSerializer, CartItemSerializer, AddCartItemSerializer, UpdateCartItemSerializer, CustomerSerializer, OrderSerializer, CreateOrderSerializer
 from .filters import ProductFilter
 from .pagination import DefaultPagination
 from .permission import IsAdminOrReadOnly
@@ -99,7 +99,6 @@ class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Ge
 
 class OrderViewSet(ModelViewSet):
     queryset = Order.objects.prefetch_related('items', 'items__product')
-    serializer_class = OrderSerializer
 
     permission_classes = [IsAuthenticated]
 
@@ -111,3 +110,11 @@ class OrderViewSet(ModelViewSet):
 
         customer_id = Customer.objects.only('id').get(user_id=user.id)
         return Order.objects.filter(customer_id=customer_id).prefetch_related('items', 'items__product')
+    
+    def get_serializer_context(self):
+        return {'user_id': self.request.user.id}
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CreateOrderSerializer
+        return OrderSerializer
