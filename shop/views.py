@@ -98,9 +98,16 @@ class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Ge
 
 
 class OrderViewSet(ModelViewSet):
-    queryset = Order.objects.prefetch_related('items', 'items__product')
-
     permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        order = serializer.save()
+        headers = self.get_success_headers(serializer.data)
+        # Change serializer to have better data before response
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_queryset(self):
         user = self.request.user
@@ -110,10 +117,10 @@ class OrderViewSet(ModelViewSet):
 
         customer_id = Customer.objects.only('id').get(user_id=user.id)
         return Order.objects.filter(customer_id=customer_id).prefetch_related('items', 'items__product')
-    
+
     def get_serializer_context(self):
         return {'user_id': self.request.user.id}
-    
+
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return CreateOrderSerializer
