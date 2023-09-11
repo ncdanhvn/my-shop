@@ -128,7 +128,6 @@ class CreateOrderSerializer(serializers.Serializer):
 
         return cart_id
 
-
     def save(self, **kwargs):
         with transaction.atomic():
             cart_id = self.validated_data['cart_id']
@@ -140,7 +139,7 @@ class CreateOrderSerializer(serializers.Serializer):
             cart_items = CartItem.objects \
                 .select_related('product') \
                 .filter(cart_id=cart_id)
-            
+
             order_items = [
                 OrderItem(
                     order=order,
@@ -153,5 +152,11 @@ class CreateOrderSerializer(serializers.Serializer):
             OrderItem.objects.bulk_create(order_items)
 
             Cart.objects.get(pk=cart_id).delete()
-        
+
         return order
+
+
+class UpdateOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['payment_status']
