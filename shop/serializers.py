@@ -95,4 +95,4 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ['id', 'phone', 'birth_date', 'membership', 'user_id']
 
-    user_id = serializers.IntegerField()
+    user_id = serializers.IntegerField(read_only=True)
