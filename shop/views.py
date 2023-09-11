@@ -7,8 +7,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
-from .models import Product, Collection, OrderItem, Cart, CartItem, Customer
-from .serializers import CollectionSerializer, ProductSerializer, CartSerializer, CartItemSerializer, AddCartItemSerializer, UpdateCartItemSerializer, CustomerSerializer
+from .models import Product, Collection, OrderItem, Cart, CartItem, Customer, Order
+from .serializers import CollectionSerializer, ProductSerializer, CartSerializer, CartItemSerializer, AddCartItemSerializer, UpdateCartItemSerializer, CustomerSerializer, OrderSerializer
 from .filters import ProductFilter
 from .pagination import DefaultPagination
 from .permission import IsAdminOrReadOnly
@@ -43,7 +43,6 @@ class CollectionViewSet(ModelViewSet):
     serializer_class = CollectionSerializer
 
     permission_classes = [IsAdminOrReadOnly]
-
 
     def destroy(self, request, *args, **kwargs):
         if Product.objects.filter(collection_id=kwargs['pk']).count() > 0:
@@ -96,3 +95,19 @@ class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Ge
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+
+
+class OrderViewSet(ModelViewSet):
+    queryset = Order.objects.prefetch_related('items', 'items__product')
+    serializer_class = OrderSerializer
+
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_staff:
+            return Order.objects.prefetch_related('items', 'items__product')
+
+        customer_id = Customer.objects.only('id').get(user_id=user.id)
+        return Order.objects.filter(customer_id=customer_id).prefetch_related('items', 'items__product')
