@@ -42,6 +42,8 @@ Open mysql shell and run create database command
 
 - You also need an Redis instance running.
 
+- Make sure you have `python` and `pipenv` installed on your machine
+
 - Steps:
   - Clone the repository:
 
@@ -60,13 +62,13 @@ Open mysql shell and run create database command
   - Run migrations and populate database with dummy data
 
     ```bash
-    pipenv manage.py makemigrations
-    pipenv manage.py migrate
-    python manage.py seed_db
+    python3 manage.py makemigrations
+    python3 manage.py migrate
+    python3 manage.py seed_db
     ```
 
   - Run server:
   
     ```bash
-    python manage.py runserver
+    python3 manage.py runserver
     ```
