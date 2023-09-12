@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -159,3 +160,14 @@ DJOSER = {
 }
 
 CELERY_BROKER_URL = 'redis://localhost:6379/1'
+CELERY_BEAT_SCHEDULE = {
+    'notify_customers': {
+        'task': 'shop.tasks.notify_customers',
+        # Schedule to do task on Monday, 7:30am
+        # 'schedule': crontab(day_of_week=1, hour=7, minute=30),
+        # Schedule to do task every 5 seconds
+        'schedule': 5,
+        'args': ['Hello World'],
+    }
+    # running command: 'celery -A myshop beat' to start celery beat
+}
