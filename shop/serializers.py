@@ -98,6 +98,13 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     user_id = serializers.IntegerField(read_only=True)
 
+class CreateCustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ['id', 'phone', 'birth_date', 'membership', 'user_id']
+
+    user_id = serializers.IntegerField()
+
 
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
