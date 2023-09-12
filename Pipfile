@@ -13,6 +13,8 @@ install = "*"
 drf-nested-routers = "*"
 djoser = "*"
 djangorestframework-simplejwt = "*"
+redis = "*"
+celery = "*"
 
 [dev-packages]
 
